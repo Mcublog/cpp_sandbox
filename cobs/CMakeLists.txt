@@ -14,12 +14,17 @@ set(TEST_TARGET "debug_cobs")
 
 # Buid TEST_TARGET target
 add_executable(${TEST_TARGET}
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    # common
     ${COMMON_SOURCES}
+    # libs
+    ${PROJECT_SOURCE_DIR}/libs/nanocobs/cobs.c
+    # project
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 
 # Include paths
 target_include_directories(${TEST_TARGET} PRIVATE
+    # common
     ${COMMON_INCLUDES}
 )
 

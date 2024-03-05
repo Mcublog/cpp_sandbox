@@ -1,0 +1,76 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cmake",
+            "label": "CMake: all tests",
+            "command": "build",
+            "targets": [
+                // "client_phone_correction_test",
+                // "data_structures_test",
+                // "sector_swapper_test",
+                // "text_printer_test"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "test"
+        },
+        {
+            "type": "shell",
+            "label": "Flash: firmware",
+            "command": "JLink",
+            "dependsOn": "CMake: build active target",
+            "args": [
+                "-CommanderScript",
+                "${command:cmake.launchTargetPath}.jlink"
+            ],
+            "group": "test"
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: build active target",
+            "command": "build",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "type": "cmake",
+            "label": "CMake: clean rebuild active",
+            "command": "cleanRebuild",
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build"
+            }
+        },
+        {
+            "label": "Delete: build dir",
+            "type": "shell",
+            "windows": {
+                "command": "rm",
+                "args": [
+                    "build",
+                    "-r",
+                    "-force"
+                ]
+            },
+            "linux": {
+                "command": "rm",
+                "args": [
+                    "-rf",
+                    "build"
+                ]
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            }
+        }
+    ]
+}
