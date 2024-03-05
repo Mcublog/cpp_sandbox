@@ -12,6 +12,11 @@ add_definitions(-DDESKTOP)
 # Set target name
 set(TEST_TARGET "debug_cobs")
 
+file(GLOB_RECURSE SOURCES
+    ${PROJECT_SOURCE_DIR}/cobs/*.c
+    ${PROJECT_SOURCE_DIR}/cobs/*.cpp
+)
+
 # Buid TEST_TARGET target
 add_executable(${TEST_TARGET}
     # common
@@ -19,7 +24,7 @@ add_executable(${TEST_TARGET}
     # libs
     ${PROJECT_SOURCE_DIR}/libs/nanocobs/cobs.c
     # project
-    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${SOURCES}
 )
 
 # Include paths
