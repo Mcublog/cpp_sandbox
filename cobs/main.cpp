@@ -25,7 +25,7 @@ typedef struct
 void *get_header_from_somewhere(size_t *s)
 {
     static header_t test_head = {
-        .channel = 0x11
+        .channel = 0x33
     };
 
     *s = sizeof(test_head);
@@ -37,6 +37,17 @@ void* get_payload_from_somewhere(size_t *s)
     static uint8_t payload[] = {0, 1, 2, 3, 4, 5, 6};
     *s = sizeof(payload);
     return payload;
+}
+
+void printf_buffer(const char *name, uint8_t *buf, size_t len)
+{
+    LOG_RAW_INFO("%s: ", name);
+    for (uint8_t i = 0; i < len; i++)
+    {
+        LOG_RAW_INFO("%02X", buf[i]);
+    }
+    LOG_RAW_INFO("\r\n");
+
 }
 
 /**
@@ -82,21 +93,21 @@ int main(void)
         return -1;
     }
 
+    printf_buffer("encoded", (uint8_t*)encoded, encoded_len);
+
     /* At this point, |encoded| contains the encoded header and payload.
        |encoded_len| contains the length of the encoded buffer. */
 
     char decoded[128];
     size_t decoded_len = 0;
-    cobs_ret_t const result = cobs_decode(encoded, encoded_len, decoded, sizeof(decoded), &decoded_len);
-    if (result == COBS_RET_SUCCESS)
-    {
-        LOG_INFO("result == COBS_RET_SUCCESS");
-    }
-    else
+    cobs_ret_t result = cobs_decode_inplace(&encoded, encoded_len);
+    //  = cobs_decode(encoded, encoded_len, decoded, sizeof(decoded), &decoded_len);
+    if (result != COBS_RET_SUCCESS)
     {
         LOG_ERROR("r != COBS_RET_SUCCESS");
         return -1;
     }
+    printf_buffer("decoded", (uint8_t*)encoded, encoded_len);
 
     return 0;
 }
