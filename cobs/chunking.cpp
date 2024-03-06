@@ -54,6 +54,17 @@ static void fill_header(chunk_t *chunk, uint8_t channel, uint16_t number, uint8_
     chunk->crc = 0x1234'4321;
 }
 
+static uint32_t chunk_encode(uint8_t *buffer, uint8_t channel, uint16_t number,
+                             uint8_t *data, uint32_t size)
+{
+    chunk_t *chunk = reinterpret_cast<chunk_t*>(&buffer[1]);
+    fill_header(chunk, channel, number, data, size);
+    uint32_t outputlen = prepare_chunk_to_inplace_encode(buffer, 0, data, size);
+    cobs_ret_t r = cobs_encode_inplace(buffer, outputlen);
+    LOG_INFO("tx => raw: %d enc: %d", KChunkHeader + size, outputlen);
+    return outputlen;
+}
+
 /**
  * @brief
  *
@@ -65,40 +76,20 @@ static void fill_header(chunk_t *chunk, uint8_t channel, uint16_t number, uint8_
 uint32_t chunking::send_data(uint8_t channel, uint8_t *data, uint32_t size)
 {
     uint8_t buffer[kChunkBuffer] = {};
-    size_t outputlen = 0;
-    chunk_t *chunk = reinterpret_cast<chunk_t*>(&buffer[1]);
-    cobs_ret_t r;
 
-    if (size < kChunkPayloadMax)
+    bool is_only_one_chunk = size < kChunkPayloadMax;
+
+    uint32_t chunks = is_only_one_chunk ? 0 : size / kChunkPayloadMax;
+    uint32_t remainder = is_only_one_chunk ? size % kChunkPayloadMax : chunks * size % kChunkPayloadMax;
+
+    LOG_INFO("chunks: %d rem: %d", chunks, remainder);
+
+    for (uint32_t i = 0, offset = 0; i <= chunks; i++, offset = (i * kChunkPayloadMax))
     {
-        fill_header(chunk, channel, 0, data, size);
-        outputlen = prepare_chunk_to_inplace_encode(buffer, 0, data, size);
-        r = cobs_encode_inplace(buffer, outputlen);
-        LOG_INFO("tx => raw: %d enc: %d", KChunkHeader + size, outputlen);
-        // TODO: send outputlen
-        return 0;
-    }
-
-    const uint32_t numbers = size / kChunkPayloadMax;
-    const uint32_t remainder = numbers * size % kChunkPayloadMax;
-    LOG_INFO("chunks: %d rem: %d", numbers, remainder);
-
-    uint32_t offset = 0;
-    for (uint32_t i = 0; i < numbers; i++, offset = (i * kChunkPayloadMax))
-    {
-        fill_header(chunk, channel, i, &data[offset], kChunkPayloadMax);
-        outputlen = prepare_chunk_to_inplace_encode(buffer, offset, data, kChunkPayloadMax);
-        r = cobs_encode_inplace(buffer, outputlen);
-        LOG_INFO("tx => raw: %d enc: %d", KChunkHeader + kChunkPayloadMax, outputlen);
-        // TODO: send outputlen
-    }
-
-    if (remainder)
-    {
-        fill_header(chunk, channel, numbers, &data[offset], remainder);
-        outputlen = prepare_chunk_to_inplace_encode(buffer, offset, data, remainder);
-        cobs_encode_inplace(chunk, outputlen);
-        LOG_INFO("tx => raw: %d enc: %d", KChunkHeader + remainder, outputlen);
+        uint32_t size_to_encode = i != chunks ? kChunkPayloadMax : remainder;
+        if (size_to_encode == 0)
+            continue;
+        chunk_encode(buffer, channel, chunks, &data[offset], size_to_encode);
         // TODO: send outputlen
     }
 

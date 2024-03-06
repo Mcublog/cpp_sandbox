@@ -8,6 +8,7 @@
  * @copyright Mcublog Copyright (c) 2024
  *
  */
+#include "cobs/chunking.hpp"
 #include "cobs/sample_enc_dec.hpp"
 #include "libs/nanocobs/cobs.h"
 //>>---------------------- Log control
@@ -22,5 +23,14 @@
  */
 int main(void)
 {
-    return encode_decode();
+    uint8_t payload[135] = {};
+    for (uint32_t i = 0; i < sizeof(payload); i++)
+        payload[i] = i + 1;
+
+    int r = 0;
+    r = chunking::send_data(0x33, payload, sizeof(payload));
+    LOG_INFO("----------");
+    r = chunking::send_data(0x34, payload, sizeof(payload) - 100);
+    return 0;
+    // return encode_decode();
 }
