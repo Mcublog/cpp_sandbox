@@ -21,17 +21,6 @@
 //<<----------------------
 
 //>>---------------------- Locals
-typedef struct
-{
-    uint8_t     channel;     // логический номер канала
-    uint8_t     reserved[1]; // резерв
-    uint16_t    size;        // количестов данных в чанке
-    uint16_t    number;      // номер чанка
-    uint16_t    total;       // всего чанков
-    uint32_t    crc;         // контрольная сумма payload
-    uint8_t     payload[];   // данные
-} chunk_t;
-
 static constexpr uint8_t kCobsOverHead = 2;
 static constexpr uint8_t kChunkBuffer = 114 + sizeof(chunk_t) + kCobsOverHead;
 static constexpr uint8_t KChunkHeader = sizeof(chunk_t);
@@ -76,6 +65,7 @@ static void fill_header(chunk_t *chunk, uint8_t channel, uint16_t number, uint16
 {
     chunk->channel = channel;
     chunk->number = number;
+    chunk->size = size;
     chunk->total = total;
     // TODO: calc crc32
     chunk->crc = 0x1234'4321;
@@ -112,14 +102,15 @@ void framing::init()
 }
 
 /**
- * @brief
+ * @brief Отправить фрейм данных. Если данных больше kChunkPayloadMax,
+ * то разбивает на куски. Куски отправляются черкз указатель на функциию sender.
  *
  * @param channel
  * @param data
  * @param size
  * @return int
  */
-uint32_t framing::send_data(uint8_t channel, uint8_t *data, uint32_t size,
+uint32_t framing::frame_send(uint8_t channel, uint8_t *data, uint32_t size,
                             ll_send_data_t sender)
 {
     uint8_t buffer[kChunkBuffer] = {};
@@ -138,7 +129,6 @@ uint32_t framing::send_data(uint8_t channel, uint8_t *data, uint32_t size,
             continue;
         uint32_t outputlen =
             chunk_encode(buffer, channel, i, kTotal, &data[offset], size_to_encode);
-        // TODO: send outputlen
         sender(buffer, outputlen);
     }
 
@@ -146,14 +136,26 @@ uint32_t framing::send_data(uint8_t channel, uint8_t *data, uint32_t size,
 }
 
 /**
- * @brief
+ * @brief Возварщает указаетль на чанк, если он коректно декодировался
  *
  * @param byte
- * @param frame
- * @return true
- * @return false
+ * @return chunk_t*
  */
-bool framing::recv_chunk(uint8_t byte, frame_t *frame)
+chunk_t *framing::chunk_receive(uint8_t data_byte)
 {
-    return false;
+    ring_buffer_queue(&m_rb, data_byte);
+    if (data_byte != COBS_FRAME_DELIMITER)
+        return nullptr;
+
+    LOG_DEBUG("COBS_FRAME_DELIMITER received");
+    ring_buffer_size_t size = ring_buffer_num_items(&m_rb);
+    cobs_ret_t r = cobs_decode_inplace(m_buffer_rx, size);
+    ring_buffer_init(&m_rb, (char*)m_buffer_rx, kChunkBuffer);
+    if (r != cobs_ret_t::COBS_RET_SUCCESS)
+    {
+        LOG_ERROR("decoding failed");
+        return nullptr;
+    }
+
+    return reinterpret_cast<chunk_t *>(&m_buffer_rx[1]);
 }
