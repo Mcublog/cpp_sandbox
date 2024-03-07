@@ -8,7 +8,7 @@
  * @copyright Mcublog Copyright (c) 2024
  *
  */
-#include "cobs/framing/framing.hpp"
+#include "libs/framing/framing.hpp"
 #include "cobs/sample_enc_dec.hpp"
 //>>---------------------- Log control
 #define LOG_MODULE_NAME dcobs
@@ -35,8 +35,7 @@ int main(void)
 
     framing::init();
 
-    int r = 0;
-    r = framing::frame_send(0x33, payload, sizeof(payload), ll_send);
+    int r = framing::frame_send(0x33, payload, sizeof(payload), ll_send);
     LOG_INFO("----------");
     r = framing::frame_send(0x34, payload, sizeof(payload) - 100, ll_send);
     LOG_INFO("----------");

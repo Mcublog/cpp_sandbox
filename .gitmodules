@@ -4,3 +4,6 @@
 [submodule "libs/Ring-Buffer"]
 	path = libs/Ring-Buffer
 	url = git@github.com:Mcublog/Ring-Buffer.git
+[submodule "libs/framing"]
+	path = libs/framing
+	url = git@github.com:Mcublog/framing.git
