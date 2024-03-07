@@ -1,3 +1,6 @@
 [submodule "libs/nanocobs"]
 	path = libs/nanocobs
 	url = https://github.com/charlesnicholson/nanocobs.git
+[submodule "libs/Ring-Buffer"]
+	path = libs/Ring-Buffer
+	url = git@github.com:Mcublog/Ring-Buffer.git
