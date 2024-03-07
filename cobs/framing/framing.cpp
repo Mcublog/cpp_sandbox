@@ -11,7 +11,9 @@
 #include <cstdint>
 #include <cstring>
 
-#include "cobs/framing.hpp"
+#include "types.h"
+#include "framing.hpp"
+
 #include "libs/Ring-Buffer/ringbuffer.h"
 #include "libs/nanocobs/cobs.h"
 //>>---------------------- Log control

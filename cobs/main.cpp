@@ -8,9 +8,8 @@
  * @copyright Mcublog Copyright (c) 2024
  *
  */
-#include "cobs/framing.hpp"
+#include "cobs/framing/framing.hpp"
 #include "cobs/sample_enc_dec.hpp"
-#include "libs/nanocobs/cobs.h"
 //>>---------------------- Log control
 #define LOG_MODULE_NAME dcobs
 #define LOG_MODULE_LEVEL (4)
