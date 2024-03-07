@@ -22,6 +22,7 @@ add_executable(${TEST_TARGET}
     # common
     ${COMMON_SOURCES}
     # libs
+    ${PROJECT_SOURCE_DIR}/libs/Ring-Buffer/ringbuffer.c
     ${PROJECT_SOURCE_DIR}/libs/nanocobs/cobs.c
     # project
     ${SOURCES}

@@ -1,5 +1,5 @@
 /**
- * @file chunking.cpp
+ * @file framing.cpp
  * @author Viacheslav (viacheslav@mcublog.ru)
  * @brief
  * @version 0.1
@@ -11,10 +11,11 @@
 #include <cstdint>
 #include <cstring>
 
-#include "cobs/chunking.hpp"
+#include "cobs/framing.hpp"
+#include "libs/Ring-Buffer/ringbuffer.h"
 #include "libs/nanocobs/cobs.h"
 //>>---------------------- Log control
-#define LOG_MODULE_NAME chnk
+#define LOG_MODULE_NAME frm
 #define LOG_MODULE_LEVEL (3)
 #include "common/debug/log_libs.h"
 //<<----------------------
@@ -32,10 +33,12 @@ typedef struct
 } chunk_t;
 
 static constexpr uint8_t kCobsOverHead = 2;
-static constexpr uint8_t kChunkBuffer = 128 + sizeof(chunk_t) + kCobsOverHead;
+static constexpr uint8_t kChunkBuffer = 114 + sizeof(chunk_t) + kCobsOverHead;
 static constexpr uint8_t KChunkHeader = sizeof(chunk_t);
 static constexpr uint8_t kChunkPayloadMax = kChunkBuffer - KChunkHeader - kCobsOverHead;
 
+static uint8_t m_buffer_rx[kChunkBuffer] = {};
+static ring_buffer_t m_rb;
 /**
  * @brief Cкопировать данные в payload, выдает кол-во закодированных данных.
  * Выставить границы сообщения.
@@ -103,6 +106,10 @@ static uint32_t chunk_encode(uint8_t *buffer, uint8_t channel, uint16_t number, 
 }
 
 //<<----------------------
+void framing::init()
+{
+    ring_buffer_init(&m_rb, (char*)m_buffer_rx, kChunkBuffer);
+}
 
 /**
  * @brief
@@ -112,7 +119,8 @@ static uint32_t chunk_encode(uint8_t *buffer, uint8_t channel, uint16_t number, 
  * @param size
  * @return int
  */
-uint32_t chunking::send_data(uint8_t channel, uint8_t *data, uint32_t size)
+uint32_t framing::send_data(uint8_t channel, uint8_t *data, uint32_t size,
+                            ll_send_data_t sender)
 {
     uint8_t buffer[kChunkBuffer] = {};
 
@@ -128,9 +136,24 @@ uint32_t chunking::send_data(uint8_t channel, uint8_t *data, uint32_t size)
         uint32_t size_to_encode = i != kChunks ? kChunkPayloadMax : kRemainder;
         if (size_to_encode == 0)
             continue;
-        chunk_encode(buffer, channel, i, kTotal, &data[offset], size_to_encode);
+        uint32_t outputlen =
+            chunk_encode(buffer, channel, i, kTotal, &data[offset], size_to_encode);
         // TODO: send outputlen
+        sender(buffer, outputlen);
     }
 
     return 0;
+}
+
+/**
+ * @brief
+ *
+ * @param byte
+ * @param frame
+ * @return true
+ * @return false
+ */
+bool framing::recv_chunk(uint8_t byte, frame_t *frame)
+{
+    return false;
 }
