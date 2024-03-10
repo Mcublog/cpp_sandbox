@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "common/debug/log_libs.h"
+#include "log_libs.h"
 
 void log_printf(const char *prefix, const char *module, const char *sFormat, ...)
 {

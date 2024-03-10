@@ -13,7 +13,7 @@
 //>>---------------------- Log control
 #define LOG_MODULE_NAME dcobs
 #define LOG_MODULE_LEVEL (4)
-#include "common/debug/log_libs.h"
+#include "libs/debug/log_libs.h"
 //<<----------------------
 
 void ll_send(uint8_t *data, uint32_t size)

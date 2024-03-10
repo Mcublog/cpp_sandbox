@@ -15,7 +15,7 @@
 //>>---------------------- Log control
 #define LOG_MODULE_NAME sencdec
 #define LOG_MODULE_LEVEL (3)
-#include "common/debug/log_libs.h"
+#include "log_libs.h"
 //<<----------------------
 
 //>>---------------------- Private

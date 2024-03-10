@@ -26,6 +26,7 @@ add_executable(${TEST_TARGET}
     ${PROJECT_SOURCE_DIR}/libs/framing/framing.cpp
     ${PROJECT_SOURCE_DIR}/libs/Ring-Buffer/ringbuffer.c
     ${PROJECT_SOURCE_DIR}/libs/nanocobs/cobs.c
+    ${PROJECT_SOURCE_DIR}/libs/debug/log_libs.c
     # project
     ${SOURCES}
 )
@@ -34,6 +35,7 @@ add_executable(${TEST_TARGET}
 target_include_directories(${TEST_TARGET} PRIVATE
     # common
     ${COMMON_INCLUDES}
+    ${PROJECT_SOURCE_DIR}/libs/debug
 )
 
 # Add pthread
