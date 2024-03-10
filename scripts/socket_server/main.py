@@ -5,20 +5,25 @@ import socket
 
 import pylogus
 import serial
+import serial.tools.list_ports
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 9000  # Port to listen on (non-privileged ports are > 1023)
 
-# SERIAL_PORT = "/dev/ttyUSB1"
-SERIAL_PORT = "/dev/ttyACM0"
-TIMEOUT_S = 0.5
+SERIAL_PORT = "/dev/ttyUSB0"
+# SERIAL_PORT = "/dev/ttyACM0"
+TIMEOUT_S = 8
+BAUDRATE = 921_600
 
 log = pylogus.logger_init(__name__, logging.DEBUG)
 
 
 def main():
-    p = serial.Serial(port=SERIAL_PORT, baudrate=57_600)
+    for port in serial.tools.list_ports.comports():
+        log.info(port)
+    p = serial.Serial(port=SERIAL_PORT, baudrate=BAUDRATE)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        log.info(f"Work on {p.name}")
         s.bind((HOST, PORT))
         s.listen()
         conn, addr = s.accept()
