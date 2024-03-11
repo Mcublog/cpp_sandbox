@@ -6,6 +6,8 @@ import socket
 import pylogus
 import serial
 import serial.tools.list_ports
+from cobs import cobsr
+from framing import Chunk
 
 HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 9000  # Port to listen on (non-privileged ports are > 1023)
@@ -45,8 +47,15 @@ def main():
                 if not data:
                     log.info("empty ack")
                     continue
-                conn.send(data)
-                log.info(f"rx[{len(data)}]: {data}")
+
+                for c in [cobsr.decode(c) for c in data.split(b'\x00') if len(c)]:
+                    if len(c) == 1:
+                        continue
+                    chunk = Chunk.from_buffer(c)
+                    conn.send(chunk.payload)
+                    log.info(f"rx[{chunk.size}]: {chunk.payload}")
+                # conn.send(data)
+                # log.info(f"rx[{len(data)}]: {data}")
 
 
 if __name__ == "__main__":
