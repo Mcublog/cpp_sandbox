@@ -56,7 +56,7 @@ def main():
                     conn.send(chunk.payload)
                 # conn.send(data)
                 # log.info(f"rx[{len(data)}]: {data}")
-
+        log.info("Disconnected")
 
 if __name__ == "__main__":
     while True:
