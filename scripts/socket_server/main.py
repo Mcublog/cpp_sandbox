@@ -48,12 +48,12 @@ def main():
                     log.info("empty ack")
                     continue
 
+                log.info(f"rx[{len(data)}]: {data}")
                 for c in [cobsr.decode(c) for c in data.split(b'\x00') if len(c)]:
                     if len(c) == 1:
                         continue
                     chunk = Chunk.from_buffer(c)
                     conn.send(chunk.payload)
-                    log.info(f"rx[{chunk.size}]: {chunk.payload}")
                 # conn.send(data)
                 # log.info(f"rx[{len(data)}]: {data}")
 
