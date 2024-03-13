@@ -58,18 +58,18 @@ class HwConnector:
 
     def _read(self) -> bytes:
         data = b''
-        with self._port_mutex:
-            while (r := self.port.read()) != b'':
-                data += r
+        # with self._port_mutex:
+        while (r := self.port.read()) != b'':
+            data += r
         return data
 
     def _polling(self, kill_evt: Event):
         raw = b''
         while not kill_evt.wait(0.1):
             while not self.writeq.empty():
-                with self._port_mutex:
-                    data = self.writeq.get_nowait()
-                    self.port.write(data)
+                # with self._port_mutex:
+                data = self.writeq.get_nowait()
+                self.port.write(data)
             try:
                 raw += self._read()
             except Exception as e:
