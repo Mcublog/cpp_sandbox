@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import chunk
 import ctypes as ct
 from dataclasses import dataclass
 
@@ -67,6 +66,16 @@ class Chunk:
                       crc=0x1234_4321,
                       payload=p))
         return chunks
+
+    def to_bytes(self) -> bytes:
+        return bytes(
+            CunkLL(
+                channel=self.channel,
+                size=self.size,
+                number=self.number,
+                total=self.total,
+                crc=self.crc,
+            )) + self.payload
 
 def test_out():
     TEST_DATA = b'Hello World'
