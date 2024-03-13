@@ -20,8 +20,6 @@ BAUDRATE = 921_600
 log = pylogus.logger_init(__name__, logging.INFO)
 
 
-
-
 def main():
     connection: socket = None
 
@@ -34,10 +32,12 @@ def main():
             try:
                 payloads[c.channel] += c.payload
             except Exception as e:
+                log.error(f"channel error: {c.channel}")
                 log.error(e)
 
         if payloads[0]:
-            print(payloads[0].decode(encoding='cp866', errors='ingnore'), end='')
+            print(payloads[0].decode(encoding='cp866', errors='ingnore'),
+                  end='')
         if payloads[1]:
             connection.send(payloads[1])
             log.info(f'to host[{len(payloads[1])}]: {payloads[1]}')
