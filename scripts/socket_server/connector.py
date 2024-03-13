@@ -71,28 +71,27 @@ class HwConnector:
                 # with self._port_mutex:
                 data = self.writeq.get_nowait()
                 self.port.write(data)
-            with self._port_mutex:
+            try:
+                raw += self._read()
+            except Exception as e:
+                log.error(e)
+                return HwConnectorErrors.SERIAL_ERROR
+            if raw == b'':
+                continue
+            if raw.find(b'\x00') == -1:
+                continue
+            # remainder = raw[raw.rindex('\x00'):]
+            # log.info(raw)
+            rem = b''
+            chunks = []
+            for c in [cobsr.decode(c) for c in raw.split(b'\x00') if len(c)]:
                 try:
-                    raw += self._read()
+                    chunks.append(Chunk.from_buffer(c))
                 except Exception as e:
-                    log.error(e)
-                    return HwConnectorErrors.SERIAL_ERROR
-                if raw == b'':
-                    continue
-                if raw.find(b'\x00') == -1:
-                    continue
-                # remainder = raw[raw.rindex('\x00'):]
-                # log.info(raw)
-                rem = b''
-                chunks = []
-                for c in [cobsr.decode(c) for c in raw.split(b'\x00') if len(c)]:
-                    try:
-                        chunks.append(Chunk.from_buffer(c))
-                    except Exception as e:
-                        log.info(e)
-                self.on_chunks_getting(chunks=chunks)
-                raw = rem
-                # raw = raw[raw.rindex(b'\x00'):]
+                    log.info(e)
+            self.on_chunks_getting(chunks=chunks)
+            raw = rem
+            # raw = raw[raw.rindex(b'\x00'):]
 
 
 

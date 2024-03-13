@@ -9,7 +9,7 @@ import serial.tools.list_ports
 from connector import HwConnector
 from framing import Chunk
 
-HOST = "192.168.0.111"  # Standard loopback interface address (localhost)
+HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
 PORT = 9000  # Port to listen on (non-privileged ports are > 1023)
 
 SERIAL_PORT = "/dev/ttyUSB0"
@@ -21,25 +21,23 @@ log = pylogus.logger_init(__name__, logging.INFO)
 
 connection: socket = None
 
+
 def on_chunks_getting(chunks: list[Chunk]):
     global connection
 
-    payloads = {
-        0x00: b'',
-        0x01: b''
-    }
+    payloads = {0x00: b'', 0x01: b''}
 
     if connection is None:
         return
     for c in chunks:
-        payloads[c.channel]+=c.payload
+        payloads[c.channel] += c.payload
 
     if payloads[0]:
-        print(payloads[0].decode(encoding='cp866', errors='ingnore'),
-              end='')
+        print(payloads[0].decode(encoding='cp866', errors='ingnore'), end='')
     if payloads[1]:
         connection.send(payloads[1])
         log.info(f'to host[{len(payloads[1])}]: {payloads[1]}')
+
 
 def main():
     global connection
@@ -58,7 +56,11 @@ def main():
             connection = conn
             log.info(f"Connected by {addr}")
             while True:
-                data = conn.recv(1024 * 8)
+                try:
+                    data = conn.recv(1024 * 8)
+                except Exception as e:
+                    log.error(e)
+                    break
                 if not data:
                     break
                 p.write(data)
@@ -67,7 +69,6 @@ def main():
 
         log.info("Disconnected")
         connection = None
-
 
 
 if __name__ == "__main__":
