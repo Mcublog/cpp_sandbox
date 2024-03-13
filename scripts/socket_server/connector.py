@@ -32,7 +32,6 @@ class HwConnector:
     _error: HwConnectorErrors = field(
         init=False, repr=False, default=HwConnectorErrors.OK)
     _kill_evt: Event = field(init=False, repr=False, default=Event())
-    _port_mutex: Lock = field(init=False, default_factory=Lock)
     _poll_thread: Thread = field(init=False, repr=False)
 
     @staticmethod
@@ -58,16 +57,14 @@ class HwConnector:
 
     def _read(self) -> bytes:
         data = b''
-        # with self._port_mutex:
         while (r := self.port.read()) != b'':
             data += r
         return data
 
     def _polling(self, kill_evt: Event):
         raw = b''
-        while not kill_evt.wait(0.1):
+        while not kill_evt.wait(0.001):
             while not self.writeq.empty():
-                # with self._port_mutex:
                 data = self.writeq.get_nowait()
                 self.port.write(data)
             try:
@@ -120,7 +117,7 @@ class HwConnector:
         return True
 
     def disconnect(self) -> bool:
-        self._queue_clear(self.writeq)
+        self.writeq = queue.Queue()
         self._kill_evt.set()
         try:
             self._poll_thread.join()
@@ -130,6 +127,7 @@ class HwConnector:
             self.port.close()
         except Exception as e:
             log.warning(e)
+        self._poll_thread = None
         self._error = HwConnectorErrors.DISCONNECT
         return True
 

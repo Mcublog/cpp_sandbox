@@ -64,6 +64,7 @@ def main():
                     break
                 if not data:
                     break
+                # data = data.replace(b'\x02PIRI', b'\x02SERV')
                 p.write(data)
                 log.info(f"from host[{len(data)}]: {data}")
                 continue
