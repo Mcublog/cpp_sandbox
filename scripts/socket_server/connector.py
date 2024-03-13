@@ -58,19 +58,18 @@ class HwConnector:
 
     def _read(self) -> bytes:
         data = b''
-        # self.port.timeout = 0.025
-        # with self._port_mutex:
-        while (r := self.port.read()) != b'':
-            data += r
+        with self._port_mutex:
+            while (r := self.port.read()) != b'':
+                data += r
         return data
 
     def _polling(self, kill_evt: Event):
         raw = b''
         while not kill_evt.wait(0.1):
             while not self.writeq.empty():
-                # with self._port_mutex:
-                data = self.writeq.get_nowait()
-                self.port.write(data)
+                with self._port_mutex:
+                    data = self.writeq.get_nowait()
+                    self.port.write(data)
             try:
                 raw += self._read()
             except Exception as e:
@@ -89,7 +88,10 @@ class HwConnector:
                     chunks.append(Chunk.from_buffer(c))
                 except Exception as e:
                     log.info(e)
-            self.on_chunks_getting(chunks=chunks)
+                    log.info(c)
+                    rem += c
+            if chunks:
+                self.on_chunks_getting(chunks=chunks)
             raw = rem
             # raw = raw[raw.rindex(b'\x00'):]
 
@@ -103,7 +105,7 @@ class HwConnector:
             self.port = Serial(
                 portname,
                 baudrate=DEFAULT_BAUDRATE,
-                timeout=0.025
+                timeout=0.015
             )
         except Exception as e:
             log.error(f"{e}")

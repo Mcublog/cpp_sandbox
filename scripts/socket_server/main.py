@@ -19,40 +19,41 @@ BAUDRATE = 921_600
 
 log = pylogus.logger_init(__name__, logging.INFO)
 
-connection: socket = None
 
-
-def on_chunks_getting(chunks: list[Chunk]):
-    global connection
-
-    payloads = {0x00: b'', 0x01: b''}
-
-    if connection is None:
-        return
-    for c in chunks:
-        payloads[c.channel] += c.payload
-
-    if payloads[0]:
-        print(payloads[0].decode(encoding='cp866', errors='ingnore'), end='')
-    if payloads[1]:
-        connection.send(payloads[1])
-        log.info(f'to host[{len(payloads[1])}]: {payloads[1]}')
 
 
 def main():
-    global connection
+    connection: socket = None
+
+    def on_chunks_getting(chunks: list[Chunk]):
+        payloads = {0x00: b'', 0x01: b''}
+
+        if connection is None:
+            return
+        for c in chunks:
+            try:
+                payloads[c.channel] += c.payload
+            except Exception as e:
+                log.error(e)
+
+        if payloads[0]:
+            print(payloads[0].decode(encoding='cp866', errors='ingnore'), end='')
+        if payloads[1]:
+            connection.send(payloads[1])
+            log.info(f'to host[{len(payloads[1])}]: {payloads[1]}')
 
     for port in serial.tools.list_ports.comports():
         log.info(port)
     p = HwConnector()
     p.on_chunks_getting = on_chunks_getting
-    p.connect(SERIAL_PORT)
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         log.info(f"Work on {SERIAL_PORT}")
         s.bind((HOST, PORT))
         s.listen()
         conn, addr = s.accept()
         with conn:
+            p.connect(SERIAL_PORT)
             connection = conn
             log.info(f"Connected by {addr}")
             while True:
@@ -69,6 +70,7 @@ def main():
 
         log.info("Disconnected")
         connection = None
+        p.disconnect()
 
 
 if __name__ == "__main__":
