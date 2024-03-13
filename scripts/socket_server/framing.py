@@ -18,8 +18,9 @@ class CunkLL(ct.Structure):
         # ('reserved', ct.c_uint8), # данные
     ]
 
+MINIMAL_SIZE = ct.sizeof(CunkLL)
 COBS_OVERHEAD = 2
-PAYLOAD_MAX_IN_CHUNK = 128 - ct.sizeof(CunkLL) - COBS_OVERHEAD
+PAYLOAD_MAX_IN_CHUNK = 128 - MINIMAL_SIZE - COBS_OVERHEAD
 
 @dataclass
 class Chunk:
