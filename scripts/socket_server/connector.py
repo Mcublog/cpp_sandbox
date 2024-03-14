@@ -26,6 +26,7 @@ class HwConnectorErrors(Enum):
 
 @dataclass
 class HwConnector:
+    name:str = ""
     port: Serial = field(init=False)
     writeq: queue.Queue = field(init=False, repr=False, default=queue.Queue())
 
@@ -94,13 +95,15 @@ class HwConnector:
 
 
 
-    def connect(self, portname: str) -> bool:
-        if not HwConnector._port_is_free(portname):
-            log.error(f"{portname} is busy")
+    def connect(self, portname: str = "") -> bool:
+        if portname:
+            self.name = portname
+        if not HwConnector._port_is_free(self.name):
+            log.error(f"{self.name} is busy")
             return False
         try:
             self.port = Serial(
-                portname,
+                self.name,
                 baudrate=DEFAULT_BAUDRATE,
                 rtscts=True,
                 timeout=0.015
@@ -110,7 +113,7 @@ class HwConnector:
             return False
         self.writeq = queue.Queue()
         self._kill_evt = Event()
-        self._poll_thread = Thread(name=f"poll: {portname}",
+        self._poll_thread = Thread(name=f"poll: {self.name}",
                                    target=self._polling,
                                    args=([self._kill_evt]),
                                    daemon=True)

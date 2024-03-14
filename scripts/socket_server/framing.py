@@ -80,6 +80,12 @@ class Chunk:
     def to_cobs(self) -> bytes:
         return cobs.encode(self.to_bytes()) + b'\x00'
 
+def data_to_bytes(channel:int, data: bytes) -> bytes:
+    output = b''
+    for c in Chunk.to_buffer(channel, data):
+        output += c.to_cobs()
+    return output
+
 def test_out():
     TEST_DATA = b'Hello World'
     LONG_DATA = b'Hello World' * 20

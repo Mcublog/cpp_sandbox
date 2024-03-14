@@ -2,78 +2,35 @@
 
 import logging
 import socket
+import time
+from dataclasses import dataclass
 
 import pylogus
-import serial
 import serial.tools.list_ports
 from connector import HwConnector
-from framing import Chunk
-
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 9000  # Port to listen on (non-privileged ports are > 1023)
+from konn_proxy import KonnProxy, ServiceSocketConfig
 
 SERIAL_PORT = "/dev/ttyUSB0"
 # SERIAL_PORT = "/dev/ttyACM0"
-TIMEOUT_S = 8
-BAUDRATE = 921_600
-
 log = pylogus.logger_init(__name__, logging.INFO)
 
 
 def main():
-    connection: socket = None
-
-    def on_chunks_getting(chunks: list[Chunk]):
-        payloads = {0x00: b'', 0x01: b''}
-
-        if connection is None:
-            return
-        for c in chunks:
-            try:
-                payloads[c.channel] += c.payload
-            except Exception as e:
-                log.error(f"channel error: {c.channel}")
-                log.error(e)
-
-        if payloads[0]:
-            print(payloads[0].decode(encoding='cp866', errors='ingnore'),
-                  end='')
-        if payloads[1]:
-            connection.send(payloads[1])
-            log.info(f'to host[{len(payloads[1])}]: {payloads[1]}')
-
     for port in serial.tools.list_ports.comports():
         log.info(port)
-    p = HwConnector()
-    p.on_chunks_getting = on_chunks_getting
 
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        log.info(f"Work on {SERIAL_PORT}")
-        s.bind((HOST, PORT))
-        s.listen()
-        conn, addr = s.accept()
-        with conn:
-            p.connect(SERIAL_PORT)
-            connection = conn
-            log.info(f"Connected by {addr}")
-            while True:
-                try:
-                    data = conn.recv(1024 * 8)
-                except Exception as e:
-                    log.error(e)
-                    break
-                if not data:
-                    break
-                for c in Chunk.to_buffer(0x01, data):
-                    p.write(c.to_cobs())
-                log.info(f"from host[{len(data)}]: {data}")
-                continue
+    configs = (ServiceSocketConfig(channel=1, host="127.0.0.1", port=9000),
+               ServiceSocketConfig(channel=0, host="127.0.0.1", port=9001))
+    konn = KonnProxy(hwport=HwConnector(SERIAL_PORT), configs=configs)
 
-        log.info("Disconnected")
-        connection = None
-        p.disconnect()
+    try:
+        while True:
+            time.sleep(0.5)
+    except KeyboardInterrupt as e:
+        log.error(e)
+    konn.disconnect()
+    log.info("Kill all")
 
 
 if __name__ == "__main__":
-    while True:
-        main()
+    main()
