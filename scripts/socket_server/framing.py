@@ -3,7 +3,7 @@
 import ctypes as ct
 from dataclasses import dataclass
 
-from cobs import cobsr
+from cobs import cobs
 
 
 class CunkLL(ct.Structure):
@@ -18,7 +18,7 @@ class CunkLL(ct.Structure):
     ]
 
 MINIMAL_SIZE = ct.sizeof(CunkLL)
-COBS_OVERHEAD = 2
+COBS_OVERHEAD = 3
 PAYLOAD_MAX_IN_CHUNK = 128 - MINIMAL_SIZE - COBS_OVERHEAD
 
 @dataclass
@@ -77,6 +77,9 @@ class Chunk:
                 crc=self.crc,
             )) + self.payload
 
+    def to_cobs(self) -> bytes:
+        return cobs.encode(self.to_bytes()) + b'\x00'
+
 def test_out():
     TEST_DATA = b'Hello World'
     LONG_DATA = b'Hello World' * 20
@@ -95,7 +98,7 @@ def test_in():
     chunks_raw = [c for c in TEST_DATA.split(b'\x00') if len(c)]
     for c in chunks_raw:
         print(c)
-    chunks_raw = [cobsr.decode(c) for c in chunks_raw]
+    chunks_raw = [cobs.decode(c) for c in chunks_raw]
     chunk_raw = chunks_raw[0]
     print('-' * 10)
     print(chunk_raw)

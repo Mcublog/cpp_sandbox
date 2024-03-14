@@ -64,8 +64,8 @@ def main():
                     break
                 if not data:
                     break
-                # data = data.replace(b'\x02PIRI', b'\x02SERV')
-                p.write(data)
+                for c in Chunk.to_buffer(0x01, data):
+                    p.write(c.to_cobs())
                 log.info(f"from host[{len(data)}]: {data}")
                 continue
 

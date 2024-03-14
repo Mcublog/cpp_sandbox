@@ -102,6 +102,7 @@ class HwConnector:
             self.port = Serial(
                 portname,
                 baudrate=DEFAULT_BAUDRATE,
+                rtscts=True,
                 timeout=0.015
             )
         except Exception as e:
