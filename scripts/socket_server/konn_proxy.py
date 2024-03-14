@@ -40,7 +40,7 @@ class ServiceConnection:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self.config.host, self.config.port))
             s.listen()
-            s.settimeout(0.5)
+            s.settimeout(1)
             try:
                 conn, addr = s.accept()
             except socket.timeout as e:
