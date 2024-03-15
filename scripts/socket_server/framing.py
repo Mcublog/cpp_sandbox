@@ -82,9 +82,13 @@ class Chunk:
     def to_cobs(self) -> bytes:
         return cobs.encode(self.to_bytes()) + b'\x00'
 
-def data_to_bytes(channel:int, data: bytes) -> bytes:
+
+def data_to_bytes(channel: int, data: bytes) -> bytes:
     output = b''
+    channel_id =f"{channel:04d}".encode('ascii')
     for c in Chunk.to_buffer(channel, data):
+        if c.number == 0:
+            c.payload = c.payload.replace(b'PIRI', channel_id)
         output += c.to_cobs()
     return output
 

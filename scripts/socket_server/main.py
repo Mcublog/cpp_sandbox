@@ -18,7 +18,8 @@ def main():
         log.info(port)
 
     configs = (ServiceSocketConfig(channel=0, host="127.0.0.1", port=9000),
-               ServiceSocketConfig(channel=1, host="127.0.0.1", port=9001))
+               ServiceSocketConfig(channel=1, host="127.0.0.1", port=9001),
+               ServiceSocketConfig(channel=2, host="127.0.0.1", port=9002))
     konn = KonnProxy(hwport=HwConnector(SERIAL_PORT), configs=configs)
 
     try:

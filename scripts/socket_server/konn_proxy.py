@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-
 import logging
 import socket
-import time
 from dataclasses import dataclass, field
 from threading import Event, Lock, Thread
 
@@ -12,14 +9,6 @@ from colorama import Fore as Clr
 from connector import HwConnector
 from framing import Chunk
 
-HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
-PORT = 9000  # Port to listen on (non-privileged ports are > 1023)
-
-SERIAL_PORT = "/dev/ttyUSB0"
-# SERIAL_PORT = "/dev/ttyACM0"
-TIMEOUT_S = 8
-BAUDRATE = 921_600
-
 
 @dataclass
 class ServiceSocketConfig:
@@ -27,7 +16,9 @@ class ServiceSocketConfig:
     host: str
     port: int
 
+
 log = pylogus.logger_init(__name__, logging.INFO)
+
 
 @dataclass
 class ServiceConnection:
@@ -77,6 +68,7 @@ class ServiceConnection:
     def send_to_channel(self, data: bytes):
         pass
 
+
 @dataclass
 class KonnProxy:
     hwport: HwConnector
@@ -109,6 +101,7 @@ class KonnProxy:
 
     def _on_from_host_data(self, data: bytes):
         # with self._portlock:
+        log.debug(f"{self.hwport.name} write: {data}")
         self.hwport.write(data)
 
     def _on_to_host_data(self, chunks: list[Chunk]):
@@ -128,25 +121,4 @@ class KonnProxy:
                 if conn.config.channel != k:
                     continue
                 conn.send(v)
-                if conn.config.channel == 1:
-                    if log.level > logging.DEBUG:
-                        return
-                    print(v.decode(encoding='cp866', errors='ingnore'),
-                          end='')
                 log.info(f"  to host[{len(v)}]: {v}")
-
-
-def main():
-    configs = (ServiceSocketConfig(channel=0, host="127.0.0.1", port=9000),
-               ServiceSocketConfig(channel=1, host="127.0.0.1", port=9001))
-    konn = KonnProxy(hwport=HwConnector(SERIAL_PORT), configs=configs)
-    try:
-        while True:
-            time.sleep(0.5)
-    except KeyboardInterrupt as e:
-        log.error(e)
-    log.info("Kill all")
-    konn.disconnect()
-
-if __name__ == "__main__":
-    main()
