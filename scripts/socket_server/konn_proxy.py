@@ -125,7 +125,7 @@ class KonnProxy:
                 if conn.config.channel != k:
                     continue
                 conn.send(v)
-                if conn.config.channel == 0:
+                if conn.config.channel == 1:
                     if log.level > logging.DEBUG:
                         return
                     print(v.decode(encoding='cp866', errors='ingnore'),
@@ -134,8 +134,8 @@ class KonnProxy:
 
 
 def main():
-    configs = (ServiceSocketConfig(channel=1, host="127.0.0.1", port=9000),
-               ServiceSocketConfig(channel=0, host="127.0.0.1", port=9001))
+    configs = (ServiceSocketConfig(channel=0, host="127.0.0.1", port=9000),
+               ServiceSocketConfig(channel=1, host="127.0.0.1", port=9001))
     konn = KonnProxy(hwport=HwConnector(SERIAL_PORT), configs=configs)
     try:
         while True:

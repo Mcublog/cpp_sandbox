@@ -17,8 +17,8 @@ def main():
     for port in serial.tools.list_ports.comports():
         log.info(port)
 
-    configs = (ServiceSocketConfig(channel=1, host="127.0.0.1", port=9000),
-               ServiceSocketConfig(channel=0, host="127.0.0.1", port=9001))
+    configs = (ServiceSocketConfig(channel=0, host="127.0.0.1", port=9000),
+               ServiceSocketConfig(channel=1, host="127.0.0.1", port=9001))
     konn = KonnProxy(hwport=HwConnector(SERIAL_PORT), configs=configs)
 
     try:
