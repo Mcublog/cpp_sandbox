@@ -10,7 +10,7 @@ from threading import Event, Thread
 
 import pylogus
 from cobs import cobsr
-from framing import CHUNK_FLOW_CONTROL_ACK, Chunk
+from framing import CHUNK_DELIMETER, CHUNK_FLOW_CONTROL_ACK, Chunk
 from serial import Serial
 
 log = pylogus.logger_init(__name__, logging.INFO)
@@ -61,7 +61,7 @@ class HwConnector:
 
     def _read(self) -> bytes:
         data = b''
-        while (r := self.port.read()) != b'':
+        while (r := self.port.read_until(CHUNK_FLOW_CONTROL_ACK)) != b'':
             data += r
         return data
 
@@ -70,17 +70,14 @@ class HwConnector:
         while not kill_evt.wait(0.001):
             while not self.writeq.empty():
                 data = self.writeq.get_nowait()
-                for c in data.split(b'\x00'):
+                for c in data.split(CHUNK_DELIMETER):
                     if c == b'':
                         continue
                     log.debug(f"send bytes {c}")
-                    c += b'\x00'
+                    c += CHUNK_DELIMETER
                     self.port.write(c)
-                    for _ in range(5):
-                        if (ack := self.port.read_until(CHUNK_FLOW_CONTROL_ACK)) == b'':
-                            time.sleep(0.001)
-                        log.debug(f"getting {ack}")
-                        break
+                    time.sleep(0.01)
+
             try:
                 raw += self._read()
             except Exception as e:
@@ -88,11 +85,11 @@ class HwConnector:
                 return HwConnectorErrors.SERIAL_ERROR
             if raw == b'':
                 continue
-            if raw.find(b'\x00') == -1:
+            if raw.find(CHUNK_DELIMETER) == -1:
                 continue
             rem = b''
             chunks = []
-            for c in [cobsr.decode(c) for c in raw.split(b'\x00') if len(c)]:
+            for c in [cobsr.decode(c) for c in raw.split(CHUNK_DELIMETER) if len(c)]:
                 try:
                     chunks.append(Chunk.from_buffer(c))
                 except Exception as e:

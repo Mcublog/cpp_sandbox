@@ -8,8 +8,7 @@ from threading import Event, Lock, Thread
 
 import framing
 import pylogus
-import serial
-import serial.tools.list_ports
+from colorama import Fore as Clr
 from connector import HwConnector
 from framing import Chunk
 
@@ -100,6 +99,8 @@ class KonnProxy:
             self.connections.append(conn)
             self.thandles.append(t)
             t.start()
+        for conn in self.connections:
+            log.info(f"{Clr.LIGHTBLUE_EX}Serving on {conn.config}{Clr.RESET}")
 
     def disconnect(self):
         for c, t in zip(self.connections, self.thandles):

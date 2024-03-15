@@ -17,9 +17,10 @@ class CunkLL(ct.Structure):
         # ('reserved', ct.c_uint8), # данные
     ]
 
-CHUNK_FLOW_CONTROL_ACK = b'\x00'
+CHUNK_DELIMETER= b'\x00'
+CHUNK_FLOW_CONTROL_ACK = CHUNK_DELIMETER
 MINIMAL_SIZE = ct.sizeof(CunkLL)
-COBS_OVERHEAD = 3
+COBS_OVERHEAD = 4
 PAYLOAD_MAX_IN_CHUNK = 128 - MINIMAL_SIZE - COBS_OVERHEAD
 
 @dataclass
