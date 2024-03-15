@@ -77,7 +77,7 @@ class HwConnector:
                     c += b'\x00'
                     self.port.write(c)
                     for _ in range(5):
-                        if (ack := self.port.read_until(b'\x00')) == b'':
+                        if (ack := self.port.read_until(CHUNK_FLOW_CONTROL_ACK)) == b'':
                             time.sleep(0.001)
                         log.debug(f"getting {ack}")
                         break
