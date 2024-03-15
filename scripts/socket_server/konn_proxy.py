@@ -113,7 +113,9 @@ class KonnProxy:
 
     def _on_to_host_data(self, chunks: list[Chunk]):
         # with self._portlock:
-        payloads = {0x00: b'', 0x01: b''}
+        payloads = {}
+        for conn in self.connections:
+            payloads.update({conn.config.channel: b''})
         for c in chunks:
             for conn in self.connections:
                 if conn.config.channel != c.channel:
