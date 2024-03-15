@@ -3,19 +3,20 @@
 
 import logging
 import queue
+import time
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from threading import Event, Lock, Thread
+from threading import Event, Thread
 
 import pylogus
 from cobs import cobsr
-from framing import Chunk
+from framing import CHUNK_FLOW_CONTROL_ACK, Chunk
 from serial import Serial
 
 log = pylogus.logger_init(__name__, logging.INFO)
 
 DEFAULT_BAUDRATE = 921_600
-TIMEOUT_S = 8
+
 
 class HwConnectorErrors(Enum):
     OK = auto()
@@ -24,14 +25,16 @@ class HwConnectorErrors(Enum):
     SERIAL_ERROR = auto()
     DISCONNECT = auto()
 
+
 @dataclass
 class HwConnector:
-    name:str = ""
-    port: Serial = field(init=False)
+    name: str = ""
+    port: Serial = field(init=False, default=None)
     writeq: queue.Queue = field(init=False, repr=False, default=queue.Queue())
 
-    _error: HwConnectorErrors = field(
-        init=False, repr=False, default=HwConnectorErrors.OK)
+    _error: HwConnectorErrors = field(init=False,
+                                      repr=False,
+                                      default=HwConnectorErrors.OK)
     _kill_evt: Event = field(init=False, repr=False, default=Event())
     _poll_thread: Thread = field(init=False, repr=False)
 
@@ -67,7 +70,17 @@ class HwConnector:
         while not kill_evt.wait(0.001):
             while not self.writeq.empty():
                 data = self.writeq.get_nowait()
-                self.port.write(data)
+                for c in data.split(b'\x00'):
+                    if c == b'':
+                        continue
+                    log.debug(f"send bytes {c}")
+                    c += b'\x00'
+                    self.port.write(c)
+                    for _ in range(5):
+                        if (ack := self.port.read_until(b'\x00')) == b'':
+                            time.sleep(0.001)
+                        log.debug(f"getting {ack}")
+                        break
             try:
                 raw += self._read()
             except Exception as e:
@@ -77,8 +90,6 @@ class HwConnector:
                 continue
             if raw.find(b'\x00') == -1:
                 continue
-            # remainder = raw[raw.rindex('\x00'):]
-            # log.info(raw)
             rem = b''
             chunks = []
             for c in [cobsr.decode(c) for c in raw.split(b'\x00') if len(c)]:
@@ -91,9 +102,6 @@ class HwConnector:
             if chunks:
                 self.on_chunks_getting(chunks=chunks)
             raw = rem
-            # raw = raw[raw.rindex(b'\x00'):]
-
-
 
     def connect(self, portname: str = "") -> bool:
         if portname:
@@ -102,12 +110,10 @@ class HwConnector:
             log.error(f"{self.name} is busy")
             return False
         try:
-            self.port = Serial(
-                self.name,
-                baudrate=DEFAULT_BAUDRATE,
-                rtscts=True,
-                timeout=0.015
-            )
+            self.port = Serial(self.name,
+                               baudrate=DEFAULT_BAUDRATE,
+                               rtscts=True,
+                               timeout=0.015)
         except Exception as e:
             log.error(f"{e}")
             return False

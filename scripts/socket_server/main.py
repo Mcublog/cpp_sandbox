@@ -26,8 +26,8 @@ def main():
     try:
         while True:
             time.sleep(0.5)
-    except KeyboardInterrupt as e:
-        log.error(e)
+    except KeyboardInterrupt:
+        pass
     konn.disconnect()
     log.info("Kill all")
 

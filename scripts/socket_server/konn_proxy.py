@@ -87,9 +87,8 @@ class KonnProxy:
     _portlock: Lock = field(init=False, repr=False, default_factory=Lock)
 
     def __post_init__(self):
-        self.hwport = HwConnector()
         self.hwport.on_chunks_getting = self._on_to_host_data
-        if not self.hwport.connect(SERIAL_PORT):
+        if not self.hwport.connect():
             log.error(f"{self.hwport} not connected")
             return
 
