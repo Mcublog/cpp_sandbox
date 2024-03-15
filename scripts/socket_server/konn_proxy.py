@@ -43,7 +43,7 @@ class ServiceConnection:
             s.settimeout(1)
             try:
                 conn, addr = s.accept()
-            except socket.timeout as e:
+            except socket.timeout:
                 # timeout try to restart
                 return
             with conn:
@@ -82,7 +82,8 @@ class ServiceConnection:
 class KonnProxy:
     hwport: HwConnector
     configs: tuple[ServiceSocketConfig]
-    connections: list[ServiceConnection] = field(init=False, repr=False, default_factory=list)
+    connections: list[ServiceConnection] = field(
+        init=False, repr=False, default_factory=list)
     thandles: list[Thread] = field(init=False, repr=False, default_factory=list)
     _portlock: Lock = field(init=False, repr=False, default_factory=Lock)
 
@@ -125,10 +126,11 @@ class KonnProxy:
                     continue
                 conn.send(v)
                 if conn.config.channel == 0:
+                    if log.level > logging.DEBUG:
+                        return
                     print(v.decode(encoding='cp866', errors='ingnore'),
                           end='')
-                else:
-                    log.info(' ' * 2 + f"to host[{len(v)}]: {v}")
+                log.info(f"  to host[{len(v)}]: {v}")
 
 
 def main():

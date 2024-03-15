@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
-import socket
 import time
-from dataclasses import dataclass
 
 import pylogus
 import serial.tools.list_ports
@@ -11,7 +9,7 @@ from connector import HwConnector
 from konn_proxy import KonnProxy, ServiceSocketConfig
 
 SERIAL_PORT = "/dev/ttyUSB0"
-# SERIAL_PORT = "/dev/ttyACM0"
+
 log = pylogus.logger_init(__name__, logging.INFO)
 
 
