@@ -30,13 +30,13 @@ class HwConnectorErrors(Enum):
 class HwConnector:
     name: str = ""
     port: Serial = field(init=False, default=None)
-    writeq: queue.Queue = field(init=False, repr=False, default=queue.Queue())
+    writeq: queue.Queue = field(init=False, repr=False, default_factory=queue.Queue)
 
     _error: HwConnectorErrors = field(init=False,
                                       repr=False,
                                       default=HwConnectorErrors.OK)
-    _kill_evt: Event = field(init=False, repr=False, default=Event())
-    _poll_thread: Thread = field(init=False, repr=False)
+    _kill_evt: Event = field(init=False, repr=False, default_factory=Event)
+    _threads: list[Thread] = field(init=False, repr=False, default_factory=list)
 
     @staticmethod
     def _port_is_free(portname: str) -> bool:
@@ -65,8 +65,7 @@ class HwConnector:
             data += r
         return data
 
-    def _polling(self, kill_evt: Event):
-        raw = b''
+    def _writing(self, kill_evt: Event):
         while not kill_evt.wait(0.001):
             while not self.writeq.empty():
                 data = self.writeq.get_nowait()
@@ -78,6 +77,9 @@ class HwConnector:
                     self.port.write(c)
                     time.sleep(0.01)
 
+    def _polling(self, kill_evt: Event):
+        raw = b''
+        while not kill_evt.wait(0.001):
             try:
                 raw += self._read()
             except Exception as e:
@@ -116,25 +118,28 @@ class HwConnector:
             return False
         self.writeq = queue.Queue()
         self._kill_evt = Event()
-        self._poll_thread = Thread(name=f"poll: {self.name}",
-                                   target=self._polling,
-                                   args=([self._kill_evt]),
-                                   daemon=True)
-        self._poll_thread.start()
+        for target in [self._polling, self._writing]:
+            t = Thread(name=f"{target}",
+                       target=target,
+                       args=([self._kill_evt]),
+                       daemon=True)
+            t.start()
+            self._threads.append(t)
         return True
 
     def disconnect(self) -> bool:
         self.writeq = queue.Queue()
         self._kill_evt.set()
         try:
-            self._poll_thread.join()
+            for t in self._threads:
+                t.join()
         except Exception as e:
             log.warning(e)
         try:
             self.port.close()
         except Exception as e:
             log.warning(e)
-        self._poll_thread = None
+        self._threads = []
         self._error = HwConnectorErrors.DISCONNECT
         return True
 
