@@ -86,7 +86,7 @@ int encode_decode()
         return -1;
     }
 
-    size_t encoded_len;
+    unsigned int encoded_len;
     r = cobs_encode_inc_end(&ctx, &encoded_len);
     if (r != COBS_RET_SUCCESS)
     {
