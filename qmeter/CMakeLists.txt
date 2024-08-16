@@ -1,4 +1,5 @@
 include(${PROJECT_SOURCE_DIR}/config/common.cmake)
+include(${PROJECT_SOURCE_DIR}/libs/libs.cmake)
 
 # For testing using desktop gcc compiler
 set(CMAKE_C_COMPILER gcc)
@@ -10,7 +11,7 @@ add_definitions(-D_WINDOWS_)
 add_definitions(-DDESKTOP)
 
 # Set target name
-set(TEST_TARGET "debug_qmeter")
+set(TEST_TARGET "cmeter")
 
 file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/qmeter/*.c
@@ -23,6 +24,7 @@ add_executable(${TEST_TARGET}
     ${COMMON_SOURCES}
     # libs
     ${PROJECT_SOURCE_DIR}/libs/debug/log_libs.c
+    ${CMETER_SOURCES}
     # project
     ${SOURCES}
 )
@@ -31,6 +33,8 @@ add_executable(${TEST_TARGET}
 target_include_directories(${TEST_TARGET} PRIVATE
     # common
     ${COMMON_INCLUDES}
+    ${PROJECT_SOURCE_DIR}/libs
+    ${PROJECT_SOURCE_DIR}/libs/CapacityMeter
     ${PROJECT_SOURCE_DIR}/libs/debug
 )
 
