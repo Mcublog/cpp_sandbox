@@ -29,6 +29,7 @@ LOG_INFO("Host system:......" ${CMAKE_SYSTEM_NAME})
 LOG_INFO("Build type:......." ${CMAKE_BUILD_TYPE})
 
 add_subdirectory(cobs)
+add_subdirectory(qmeter)
 
 # region Tests
 # message("******* [Unit test list] *******")
