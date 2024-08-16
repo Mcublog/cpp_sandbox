@@ -10,11 +10,8 @@
  */
 #include "qmeter/impl/CMeterImpl.hpp"
 //>>---------------------- Log control
-#define LOG_MODULE_NAME cmeter_tst
-#define LOG_MODULE_LEVEL (3)
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
+#define LOG_MODULE_NAME     cmeter_tst
+#define LOG_MODULE_LEVEL    (3)
 #include "libs/debug/log_libs.h"
 //<<----------------------
 
