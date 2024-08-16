@@ -33,6 +33,6 @@ add_subdirectory(qmeter)
 
 # region Tests
 # message("******* [Unit test list] *******")
-# enable_testing()
-# add_subdirectory(test)
+enable_testing()
+add_subdirectory(test)
 # endregion

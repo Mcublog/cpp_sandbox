@@ -16,7 +16,7 @@
 
 void log_printf(const char *prefix, const char *module, const char *sFormat, ...)
 {
-#ifndef NDEBUG
+#if !defined NDEBUG || defined FORCE_LOG
     printf("%s> %s: ", prefix, module);
     va_list ParamList;
     va_start(ParamList, sFormat);
