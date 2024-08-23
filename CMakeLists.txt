@@ -30,6 +30,7 @@ LOG_INFO("Build type:......." ${CMAKE_BUILD_TYPE})
 
 add_subdirectory(cobs)
 add_subdirectory(qmeter)
+add_subdirectory(dispemu)
 
 # region Tests
 # message("******* [Unit test list] *******")
