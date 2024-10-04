@@ -7,3 +7,6 @@
 [submodule "libs/framing"]
 	path = libs/framing
 	url = git@github.com:Mcublog/framing.git
+[submodule "libs/bitarray-cpp"]
+	path = libs/bitarray-cpp
+	url = https://github.com/MichaelDipperstein/bitarray-cpp.git
