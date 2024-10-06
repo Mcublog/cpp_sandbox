@@ -11,7 +11,7 @@
 #include <chrono>
 #include <thread>
 
-#include "libs/bitarray-cpp/bitarray.h"
+#include "bitarray.hpp"
 //>>---------------------- Log control
 #define LOG_MODULE_NAME     sandbox
 #define LOG_MODULE_LEVEL    (3)
@@ -28,10 +28,11 @@ int main(void)
 
     uint8_t line[640 / 8] = {};
 
-    bit_array_c bits{line, 640};
+    bitarray bits{line, 640};
 
-    bits.SetBit(4);
-    bits.SetBit(9);
+    bits.set_bit(4);
+    bits.set_bit(9);
+    bits.reverse();
     while (1)
     {
         LOG_INFO("waiting");
