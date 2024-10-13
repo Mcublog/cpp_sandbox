@@ -10,6 +10,7 @@
  */
 #include <chrono>
 #include <thread>
+#include <span>
 
 #include "bitarray.hpp"
 //>>---------------------- Log control
@@ -18,6 +19,18 @@
 #include "libs/debug/log_libs.h"
 //<<----------------------
 
+void print_line(std::span<uint8_t> line)
+{
+    LOG_INFO("line size: %d", line.size());
+    for (auto& v: line)
+    {
+        if (v)
+            LOG_RAW_INFO("x");
+        else
+            LOG_RAW_INFO("o");
+    }
+    LOG_RAW_INFO("\r\n");
+}
 
 int main(void)
 {
@@ -30,14 +43,19 @@ int main(void)
 
     bitarray bits{line, 640};
 
+    uint8_t *pline = line;
+
     bits.set_bit(4);
     bits.set_bit(9);
+    print_line(line);
     bits.reverse();
-    while (1)
-    {
-        LOG_INFO("waiting");
-        sleep_for(std::chrono::seconds(1));
-    }
+
+    print_line(line);
+    // while (1)
+    // {
+    //     LOG_INFO("waiting");
+    //     sleep_for(std::chrono::seconds(1));
+    // }
 
     return 0;
 }
