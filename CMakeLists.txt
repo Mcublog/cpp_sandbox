@@ -32,6 +32,7 @@ add_subdirectory(cobs)
 add_subdirectory(qmeter)
 add_subdirectory(dispemu)
 add_subdirectory(sanbox)
+add_subdirectory(sockets)
 
 # region Tests
 # message("******* [Unit test list] *******")
