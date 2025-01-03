@@ -10,3 +10,6 @@
 [submodule "libs/bitarray-cpp"]
 	path = libs/bitarray-cpp
 	url = https://github.com/MichaelDipperstein/bitarray-cpp.git
+[submodule "libs/debug"]
+	path = libs/debug
+	url = git@github.com:Mcublog/debug.git
