@@ -61,14 +61,14 @@ int main(void)
     while (bWaiting)
     {
         unsigned int sock_len = 0;
-        LOG_ERROR("Waiting for connection....");
+        LOG_INFO("Waiting for connection....");
         if ((s2 = accept(s, (struct sockaddr *)&remote, &sock_len)) == -1)
         {
             LOG_ERROR("Error on accept() call");
             return 1;
         }
 
-        LOG_ERROR("Server connected");
+        LOG_INFO("Server connected");
 
         int data_recv = 0;
         char recv_buf[100] = {};
