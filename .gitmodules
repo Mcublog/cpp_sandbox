@@ -13,3 +13,6 @@
 [submodule "libs/debug"]
 	path = libs/debug
 	url = git@github.com:Mcublog/debug.git
+[submodule "libs/smalloc"]
+	path = libs/smalloc
+	url = https://github.com/strlcat/smalloc.git
