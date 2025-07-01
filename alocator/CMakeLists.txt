@@ -5,11 +5,6 @@ include(${PROJECT_SOURCE_DIR}/libs/libs.cmake)
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 
-# Set defines
-add_definitions(-DprojCOVERAGE_TEST=0)
-add_definitions(-D_WINDOWS_)
-add_definitions(-DDESKTOP)
-
 # Set target name
 set(TEST_TARGET "alocator")
 
@@ -37,6 +32,8 @@ target_include_directories(${TEST_TARGET} PRIVATE
     ${PROJECT_SOURCE_DIR}/libs
     ${PROJECT_SOURCE_DIR}/libs/debug
 )
+
+target_compile_definitions(${TEST_TARGET} PUBLIC "FORCE_LOG")
 
 # Add pthread
 target_link_libraries(${TEST_TARGET} pthread)
