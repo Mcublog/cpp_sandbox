@@ -19,7 +19,6 @@ add_executable(${TEST_TARGET}
     ${COMMON_SOURCES}
     # libs
     ${PROJECT_SOURCE_DIR}/libs/debug/log_libs.c
-    ${CMETER_SOURCES}
     ${SMACLLOC_SOURCES}
     # project
     ${SOURCES}
