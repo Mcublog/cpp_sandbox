@@ -34,6 +34,7 @@ add_subdirectory(dispemu)
 add_subdirectory(sanbox)
 add_subdirectory(sockets)
 add_subdirectory(alocator)
+add_subdirectory(entry_point)
 
 # region Tests
 # message("******* [Unit test list] *******")
