@@ -6,6 +6,8 @@ set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 
 find_package(SDL2 REQUIRED)
+find_package(Freetype REQUIRED)
+# find_package(GTK REQUIRED gtk+-3.0)
 
 # Set target name
 set(TEST_TARGET "imguitest")
@@ -13,7 +15,8 @@ set(TEST_TARGET "imguitest")
 file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/imgui_test/*.c
     ${PROJECT_SOURCE_DIR}/imgui_test/*.cpp
-    ${PROJECT_SOURCE_DIR}/libs/imgui/imgui_demo.cpp
+    # ${PROJECT_SOURCE_DIR}/libs/imgui/imgui_demo.cpp
+    ${PROJECT_SOURCE_DIR}/libs/imgui/misc/freetype/imgui_freetype.cpp
     ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_opengl2.cpp
 )
 
@@ -25,6 +28,8 @@ add_executable(${TEST_TARGET}
     ${PROJECT_SOURCE_DIR}/libs/debug/log_libs.c
     ${DEARIMGUI_SOURCES}
     ${SDL2_INCLUDE_DIRS}
+    ${FREETYPE_INCLUDE_DIRS}
+    # ${NATIVEFILEDIALOG_SOURCES}
     # project
     ${SOURCES}
 
@@ -37,9 +42,11 @@ target_include_directories(${TEST_TARGET} PRIVATE
     ${PROJECT_SOURCE_DIR}/libs
     ${PROJECT_SOURCE_DIR}/libs/debug
     ${DEARIMGUI_INCLUDES}
+    # ${NATIVEFILEDIALOG_INCLUDES}
+    # ${GTK_INCLUDE_DIRS}
 )
 
-target_compile_definitions(${TEST_TARGET} PUBLIC "FORCE_LOG" ${SDL2_DEFINITIONS})
+target_compile_definitions(${TEST_TARGET} PUBLIC "FORCE_LOG" "IMGUI_ENABLE_FREETYPE" ${SDL2_DEFINITIONS})
 
 # Add pthread
-target_link_libraries(${TEST_TARGET} pthread GL dl ${SDL2_LIBRARIES})
+target_link_libraries(${TEST_TARGET} pthread GL dl freetype ${SDL2_LIBRARIES} Freetype::Freetype)
