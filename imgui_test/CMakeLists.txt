@@ -17,7 +17,10 @@ file(GLOB_RECURSE SOURCES
     ${PROJECT_SOURCE_DIR}/imgui_test/*.cpp
     # ${PROJECT_SOURCE_DIR}/libs/imgui/imgui_demo.cpp
     ${PROJECT_SOURCE_DIR}/libs/imgui/misc/freetype/imgui_freetype.cpp
-    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_opengl2.cpp
+    # ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_opengl2.cpp
+    #
+    ${CMAKE_CURRENT_SOURCE_DIR}/x11backend/imgui_impl_x11.cpp
+    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 # Buid TEST_TARGET target
@@ -37,6 +40,8 @@ add_executable(${TEST_TARGET}
 
 # Include paths
 target_include_directories(${TEST_TARGET} PRIVATE
+    #
+    ${CMAKE_CURRENT_SOURCE_DIR}/x11backend
     # common
     ${COMMON_INCLUDES}
     ${PROJECT_SOURCE_DIR}/libs
@@ -49,4 +54,4 @@ target_include_directories(${TEST_TARGET} PRIVATE
 target_compile_definitions(${TEST_TARGET} PUBLIC "FORCE_LOG" "IMGUI_ENABLE_FREETYPE" ${SDL2_DEFINITIONS})
 
 # Add pthread
-target_link_libraries(${TEST_TARGET} pthread GL dl freetype ${SDL2_LIBRARIES} Freetype::Freetype)
+target_link_libraries(${TEST_TARGET} pthread GL dl freetype ${SDL2_LIBRARIES} Freetype::Freetype X11)
