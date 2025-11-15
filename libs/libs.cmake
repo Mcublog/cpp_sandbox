@@ -25,7 +25,6 @@ set(DEARIMGUI_SOURCES
     ${PROJECT_SOURCE_DIR}/libs/imgui/imgui_tables.cpp
     ${PROJECT_SOURCE_DIR}/libs/imgui/imgui_draw.cpp
     ${PROJECT_SOURCE_DIR}/libs/imgui/imgui_widgets.cpp
-    ${PROJECT_SOURCE_DIR}/libs/imgui/backends/imgui_impl_sdl2.cpp
 )
 
 # set(NATIVEFILEDIALOG_INCLUDES

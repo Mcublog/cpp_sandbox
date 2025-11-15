@@ -51,7 +51,7 @@ target_include_directories(${TEST_TARGET} PRIVATE
     # ${GTK_INCLUDE_DIRS}
 )
 
-target_compile_definitions(${TEST_TARGET} PUBLIC "FORCE_LOG" "IMGUI_ENABLE_FREETYPE" ${SDL2_DEFINITIONS})
+target_compile_definitions(${TEST_TARGET} PUBLIC "FORCE_LOG" IMGUI_ENABLE_FREETYPE)
 
 # Add pthread
-target_link_libraries(${TEST_TARGET} pthread GL dl freetype ${SDL2_LIBRARIES} Freetype::Freetype X11)
+target_link_libraries(${TEST_TARGET} pthread GL dl freetype Freetype::Freetype X11)
