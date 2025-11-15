@@ -16,3 +16,6 @@
 [submodule "libs/smalloc"]
 	path = libs/smalloc
 	url = https://github.com/strlcat/smalloc.git
+[submodule "libs/imgui"]
+	path = libs/imgui
+	url = https://github.com/ocornut/imgui.git
