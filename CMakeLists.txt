@@ -36,7 +36,7 @@ add_subdirectory(sockets)
 add_subdirectory(alocator)
 add_subdirectory(entry_point)
 add_subdirectory(flowcontrol)
-add_subdirectory(imgui_test)
+# add_subdirectory(imgui_test)
 add_subdirectory(fltk_test)
 
 # region Tests
