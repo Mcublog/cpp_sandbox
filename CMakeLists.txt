@@ -38,6 +38,7 @@ add_subdirectory(entry_point)
 add_subdirectory(flowcontrol)
 # add_subdirectory(imgui_test)
 add_subdirectory(fltk_test)
+add_subdirectory(glem_demo)
 
 # region Tests
 # message("******* [Unit test list] *******")
